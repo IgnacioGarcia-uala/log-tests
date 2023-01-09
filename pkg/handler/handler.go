@@ -2,8 +2,8 @@ package handler
 
 import (
 	"context"
-	"log"
 
+	"github.com/Bancar/uala-labssupport-monitoreofraude/internal/logger"
 	"github.com/Bancar/uala-labssupport-monitoreofraude/pkg/models"
 )
 
@@ -26,14 +26,16 @@ func New(p Processor) Handler {
 }
 
 func (h LogTestHandler) Handle(ctx context.Context, request models.Request) (models.Response, error) {
-	log.Printf("<start> <handler> <handle> - Handling Request %+v", request)
+	log := logger.SetLogger(ctx, request.AccountId)
+
+	log.Info("<start> <handler> <handle> - Handling Request", log.AnyField("request", request))
 
 	r, err := h.p.Process(request)
 	if err != nil {
-		log.Printf("<middle> <handler> <handle> - Error processing: %v", err.Error())
+		log.Info("<middle> <handler> <handle> - Error processing", log.AnyField("error", err.Error()))
 		return models.Response{}, err
 	}
 
-	log.Printf("<finish> <handler> <handle> - Response: %+v", r)
+	log.Info("<finish> <handler> <handle> - Response", log.AnyField("response", r))
 	return r, nil
 }
